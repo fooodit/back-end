@@ -9,6 +9,7 @@ import lombok.Data;
 @Builder
 public class ReviewDto {
 
+  private Integer hoursAgo;
   private String name;
   private String content;
   private Long likeCount;
