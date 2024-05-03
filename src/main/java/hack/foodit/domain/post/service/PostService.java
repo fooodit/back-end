@@ -1,6 +1,9 @@
 package hack.foodit.domain.post.service;
 
-import hack.foodit.domain.post.entity.dto.toggleRequestDto;
+import com.sun.jdi.InternalException;
+import hack.foodit.domain.member.entity.Member;
+import hack.foodit.domain.member.repository.MemberRepository;
+import hack.foodit.domain.post.entity.dto.ToggleRequestDto;
 import hack.foodit.domain.post.entity.Post;
 import hack.foodit.domain.post.entity.PostStatus;
 import hack.foodit.domain.post.entity.dto.PostRequestDTO;
@@ -8,8 +11,10 @@ import hack.foodit.domain.post.entity.dto.PostResponseDTO;
 import hack.foodit.domain.post.repository.PostRepository;
 import hack.foodit.domain.post.repository.PostStatusRepository;
 import hack.foodit.global.error.NotFoundException;
+import hack.foodit.global.service.S3Service;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,17 +24,31 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
 
-  private PostRepository postRepository;
-  private PostStatusRepository postStatusRepository;
+  private final PostRepository postRepository;
+  private final PostStatusRepository postStatusRepository;
+  private final MemberRepository memberRepository;
+  private final S3Service s3Service;
 
   @Transactional
-  public Long createPost(PostRequestDTO postRequestDTO) {
+  public Long createPost(PostRequestDTO postRequestDTO, List<MultipartFile> multipartFileList) {
+    List<String> imageUrlList = new ArrayList<>();
+    for (MultipartFile multipartFile : multipartFileList) {
+      try {
+        imageUrlList
+            .add(s3Service.uploadOriginImage(multipartFile, multipartFile.getOriginalFilename()));
+      } catch (Exception e) {
+        throw new InternalException();
+      }
+
+    }
+
     Post post = new Post();
     post.setTitle(postRequestDTO.getTitle());
     post.setContent(postRequestDTO.getContent());
@@ -38,6 +57,7 @@ public class PostService {
     post.setCreatedAt(LocalDateTime.now());
     post.setLikeCount(0L);
     post.setUnlikeCount(0L);
+    post.setImageUrlList(imageUrlList);
     postRepository.save(post);
     return post.getId();
   }
@@ -80,30 +100,26 @@ public class PostService {
   }
 
   @Transactional
-  public String likeToggle(toggleRequestDto requestDto) {
-    Long userId = requestDto.getUserId();
+  public PostResponseDTO likeToggle(ToggleRequestDto requestDto) {
+    Long memberId = requestDto.getMemberId();
     Long postId = requestDto.getPostId();
-    Integer category = requestDto.getCategory();
 
     Post post = postRepository.findById(postId)
         .orElseThrow(NotFoundException::new);
 
-    // TODO : User user = ...findById
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(NotFoundException::new);
 
-    // TODO : findByUserAndPost
-    // postStatusRepository.findBy
-
-    PostStatus postStatus = PostStatus.builder()
-        .status(Boolean.TRUE)
-        .build();
+    PostStatus postStatus = postStatusRepository.findByMemberAndPost(member, post);
 
     // None 상태 -> like 상태
     if (postStatus == null) {
       postStatus = PostStatus.builder()
           .status(Boolean.TRUE)
-          // TODO : user 추가
+          .member(member)
           .post(post)
           .build();
+      postStatusRepository.save(postStatus);
 
       // 좋아요 수 + 1
       post.incrementLikeCount();
@@ -124,34 +140,30 @@ public class PostService {
       post.incrementLikeCount();
     }
 
-    return null;
+    return PostResponseDTO.from(post);
   }
 
   @Transactional
-  public String unlikeToggle(toggleRequestDto requestDto) {
-    Long userId = requestDto.getUserId();
+  public PostResponseDTO unlikeToggle(ToggleRequestDto requestDto) {
+    Long userId = requestDto.getMemberId();
     Long postId = requestDto.getPostId();
-    Integer category = requestDto.getCategory();
 
     Post post = postRepository.findById(postId)
         .orElseThrow(NotFoundException::new);
 
-    // TODO : User user = ...findById
+    Member member = memberRepository.findById(userId)
+        .orElseThrow(NotFoundException::new);
 
-    // TODO : findByUserAndPost
-    // postStatusRepository.findBy
-
-    PostStatus postStatus = PostStatus.builder()
-        .status(Boolean.TRUE)
-        .build();
+    PostStatus postStatus = postStatusRepository.findByMemberAndPost(member, post);
 
     // None 상태 -> unlike 상태
     if (postStatus == null) {
       postStatus = PostStatus.builder()
           .status(Boolean.FALSE)
-          // TODO : user 추가
+          .member(member)
           .post(post)
           .build();
+      postStatusRepository.save(postStatus);
 
       // 싫어요 수 + 1
       post.incrementUnlikeCount();
@@ -172,6 +184,6 @@ public class PostService {
       post.decrementUnlikeCount();
     }
 
-    return null;
+    return PostResponseDTO.from(post);
   }
 }

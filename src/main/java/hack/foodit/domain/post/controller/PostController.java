@@ -2,6 +2,7 @@ package hack.foodit.domain.post.controller;
 
 import hack.foodit.domain.post.entity.dto.PostRequestDTO;
 import hack.foodit.domain.post.entity.dto.PostResponseDTO;
+import hack.foodit.domain.post.entity.dto.ToggleRequestDto;
 import hack.foodit.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,9 +33,12 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody PostRequestDTO req){
+    public ResponseEntity<?> createPost(
+        @RequestPart PostRequestDTO reqDto,
+        @RequestPart("files") List<MultipartFile> multipartFileList){
+
         try{
-            postService.createPost(req);
+            postService.createPost(reqDto, multipartFileList);
             return new ResponseEntity<>("게시물이 정상적으로 작성되었습니다.", HttpStatus.CREATED);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -60,7 +65,9 @@ public class PostController {
         }
     }
     @GetMapping("/new")
-    public ResponseEntity<?> getPostSortByNew(@RequestParam(required=false, defaultValue = "0")int page){
+    public ResponseEntity<?> getPostSortByNew(
+        @RequestParam(required=false, defaultValue = "0")int page){
+
         PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
         try{
             List<PostResponseDTO> res = postService.findAll(pageable);
@@ -97,5 +104,15 @@ public class PostController {
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<?> likeToggle(@RequestBody ToggleRequestDto requestDto) {
+        return new ResponseEntity<>(postService.likeToggle(requestDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/unlike")
+    public ResponseEntity<?> unlikeToggle(@RequestBody ToggleRequestDto requestDto) {
+        return new ResponseEntity<>(postService.unlikeToggle(requestDto), HttpStatus.OK);
     }
 }

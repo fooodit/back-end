@@ -7,11 +7,9 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class toggleRequestDto {
+public class ToggleRequestDto {
 
-  private Long userId;
+  private Long memberId;
 
   private Long postId;
-
-  private Integer category;
 }

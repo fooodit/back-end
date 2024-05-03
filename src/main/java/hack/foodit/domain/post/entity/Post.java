@@ -1,12 +1,16 @@
 package hack.foodit.domain.post.entity;
 
+import hack.foodit.domain.member.entity.Member;
 import hack.foodit.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +28,10 @@ public class Post extends BaseEntity {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id")
+  private Member member;
+
   @Column(columnDefinition = "VARCHAR(1024)")
   private String title;
 
@@ -37,6 +45,9 @@ public class Post extends BaseEntity {
   @ElementCollection
   private List<Integer> categoryList;
 
+  @ElementCollection
+  private List<String> imageUrlList;
+
   public void incrementLikeCount() {
     this.likeCount += 1;
   }
@@ -46,7 +57,7 @@ public class Post extends BaseEntity {
   }
 
   public void incrementUnlikeCount() {
-    this.likeCount += 1;
+    this.unlikeCount += 1;
   }
 
   public void decrementUnlikeCount() {

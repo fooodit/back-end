@@ -1,7 +1,9 @@
-package hack.foodit.controller;
+package hack.foodit.domain.member.controller;
 
-import hack.foodit.domain.member.Member;
-import hack.foodit.service.MemberService;
+import hack.foodit.domain.member.entity.Member;
+import hack.foodit.domain.member.entity.dto.LoginDto;
+import hack.foodit.domain.member.entity.dto.SignUpDto;
+import hack.foodit.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,8 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Member> registerMember(@RequestBody Member member) {
-        Member registeredMember = memberService.registerMember(member);
+    public ResponseEntity<Member> registerMember(@RequestBody SignUpDto signUpDto) {
+        Member registeredMember = memberService.registerMember(signUpDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredMember);
     }
 
@@ -32,12 +34,12 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
-        boolean success = memberService.login(email, password);
-        if (success) {
-            return ResponseEntity.ok("Login successful");
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+        Long memberId = memberService.login(loginDto);
+        if (memberId != null) {
+            return ResponseEntity.ok(memberId);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("login fail");
         }
     }
 }
