@@ -1,6 +1,6 @@
-package hack.foodit.repository;
+package hack.foodit.domain.member.repository;
 
-import hack.foodit.domain.member.Member;
+import hack.foodit.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
