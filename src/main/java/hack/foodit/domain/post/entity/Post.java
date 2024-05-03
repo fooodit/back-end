@@ -21,10 +21,10 @@ public class Post extends BaseEntity {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(columnDefinition = "TEXT")
+  @Column(columnDefinition = "VARCHAR(1024)")
   private String title;
 
-  @Column(columnDefinition = "VARCHAR(1024)")
+  @Column(columnDefinition = "TEXT")
   private String content;
 
   private Long likeCount;
