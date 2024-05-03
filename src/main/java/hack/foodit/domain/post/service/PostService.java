@@ -1,5 +1,6 @@
 package hack.foodit.domain.post.service;
 
+import com.sun.jdi.InternalException;
 import hack.foodit.domain.member.entity.Member;
 import hack.foodit.domain.member.repository.MemberRepository;
 import hack.foodit.domain.post.entity.dto.ToggleRequestDto;
@@ -10,8 +11,10 @@ import hack.foodit.domain.post.entity.dto.PostResponseDTO;
 import hack.foodit.domain.post.repository.PostRepository;
 import hack.foodit.domain.post.repository.PostStatusRepository;
 import hack.foodit.global.error.NotFoundException;
+import hack.foodit.global.service.S3Service;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +34,21 @@ public class PostService {
   private final PostRepository postRepository;
   private final PostStatusRepository postStatusRepository;
   private final MemberRepository memberRepository;
+  private final S3Service s3Service;
 
   @Transactional
-  public Long createPost(PostRequestDTO postRequestDTO) {
+  public Long createPost(PostRequestDTO postRequestDTO, List<MultipartFile> multipartFileList) {
+    List<String> imageUrlList = new ArrayList<>();
+    for (MultipartFile multipartFile : multipartFileList) {
+      try {
+        imageUrlList
+            .add(s3Service.uploadOriginImage(multipartFile, multipartFile.getOriginalFilename()));
+      } catch (Exception e) {
+        throw new InternalException();
+      }
+
+    }
+
     Post post = new Post();
     post.setTitle(postRequestDTO.getTitle());
     post.setContent(postRequestDTO.getContent());
@@ -41,6 +57,7 @@ public class PostService {
     post.setCreatedAt(LocalDateTime.now());
     post.setLikeCount(0L);
     post.setUnlikeCount(0L);
+    post.setImageUrlList(imageUrlList);
     postRepository.save(post);
     return post.getId();
   }

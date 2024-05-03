@@ -19,6 +19,7 @@ public class PostResponseDTO {
     String content;
     Long likeCount;
     Long unlikeCount;
+    List<String> imageUrls;
     List<Integer> categoryList;
     LocalDateTime createdAt;
     LocalDateTime modifiedAt;
@@ -29,6 +30,7 @@ public class PostResponseDTO {
                 .content(entity.getContent())
                 .likeCount(entity.getLikeCount())
                 .unlikeCount(entity.getUnlikeCount())
+                .imageUrls(entity.getImageUrlList())
                 .categoryList(entity.getCategoryList())
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())

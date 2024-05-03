@@ -45,6 +45,9 @@ public class Post extends BaseEntity {
   @ElementCollection
   private List<Integer> categoryList;
 
+  @ElementCollection
+  private List<String> imageUrlList;
+
   public void incrementLikeCount() {
     this.likeCount += 1;
   }
