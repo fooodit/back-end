@@ -1,6 +1,8 @@
 package hack.foodit.domain.post.service;
 
-import hack.foodit.domain.post.entity.dto.toggleRequestDto;
+import hack.foodit.domain.member.entity.Member;
+import hack.foodit.domain.member.repository.MemberRepository;
+import hack.foodit.domain.post.entity.dto.ToggleRequestDto;
 import hack.foodit.domain.post.entity.Post;
 import hack.foodit.domain.post.entity.PostStatus;
 import hack.foodit.domain.post.entity.dto.PostRequestDTO;
@@ -25,8 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PostService {
 
-  private PostRepository postRepository;
-  private PostStatusRepository postStatusRepository;
+  private final PostRepository postRepository;
+  private final PostStatusRepository postStatusRepository;
+  private final MemberRepository memberRepository;
 
   @Transactional
   public Long createPost(PostRequestDTO postRequestDTO) {
@@ -80,30 +83,26 @@ public class PostService {
   }
 
   @Transactional
-  public String likeToggle(toggleRequestDto requestDto) {
+  public PostResponseDTO likeToggle(ToggleRequestDto requestDto) {
     Long userId = requestDto.getUserId();
     Long postId = requestDto.getPostId();
-    Integer category = requestDto.getCategory();
 
     Post post = postRepository.findById(postId)
         .orElseThrow(NotFoundException::new);
 
-    // TODO : User user = ...findById
+    Member member = memberRepository.findById(userId)
+        .orElseThrow(NotFoundException::new);
 
-    // TODO : findByUserAndPost
-    // postStatusRepository.findBy
-
-    PostStatus postStatus = PostStatus.builder()
-        .status(Boolean.TRUE)
-        .build();
+    PostStatus postStatus = postStatusRepository.findByMemberAndPost(member, post);
 
     // None 상태 -> like 상태
     if (postStatus == null) {
       postStatus = PostStatus.builder()
           .status(Boolean.TRUE)
-          // TODO : user 추가
+          .member(member)
           .post(post)
           .build();
+      postStatusRepository.save(postStatus);
 
       // 좋아요 수 + 1
       post.incrementLikeCount();
@@ -124,34 +123,30 @@ public class PostService {
       post.incrementLikeCount();
     }
 
-    return null;
+    return PostResponseDTO.from(post);
   }
 
   @Transactional
-  public String unlikeToggle(toggleRequestDto requestDto) {
+  public PostResponseDTO unlikeToggle(ToggleRequestDto requestDto) {
     Long userId = requestDto.getUserId();
     Long postId = requestDto.getPostId();
-    Integer category = requestDto.getCategory();
 
     Post post = postRepository.findById(postId)
         .orElseThrow(NotFoundException::new);
 
-    // TODO : User user = ...findById
+    Member member = memberRepository.findById(userId)
+        .orElseThrow(NotFoundException::new);
 
-    // TODO : findByUserAndPost
-    // postStatusRepository.findBy
-
-    PostStatus postStatus = PostStatus.builder()
-        .status(Boolean.TRUE)
-        .build();
+    PostStatus postStatus = postStatusRepository.findByMemberAndPost(member, post);
 
     // None 상태 -> unlike 상태
     if (postStatus == null) {
       postStatus = PostStatus.builder()
           .status(Boolean.FALSE)
-          // TODO : user 추가
+          .member(member)
           .post(post)
           .build();
+      postStatusRepository.save(postStatus);
 
       // 싫어요 수 + 1
       post.incrementUnlikeCount();
@@ -172,6 +167,6 @@ public class PostService {
       post.decrementUnlikeCount();
     }
 
-    return null;
+    return PostResponseDTO.from(post);
   }
 }

@@ -2,6 +2,7 @@ package hack.foodit.domain.post.controller;
 
 import hack.foodit.domain.post.entity.dto.PostRequestDTO;
 import hack.foodit.domain.post.entity.dto.PostResponseDTO;
+import hack.foodit.domain.post.entity.dto.ToggleRequestDto;
 import hack.foodit.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -97,5 +98,15 @@ public class PostController {
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<?> likeToggle(@RequestBody ToggleRequestDto requestDto) {
+        return new ResponseEntity<>(postService.likeToggle(requestDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/unlike")
+    public ResponseEntity<?> unlikeToggle(@RequestBody ToggleRequestDto requestDto) {
+        return new ResponseEntity<>(postService.unlikeToggle(requestDto), HttpStatus.OK);
     }
 }

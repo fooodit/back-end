@@ -1,7 +1,7 @@
-package hack.foodit.service;
+package hack.foodit.domain.member.service;
 
-import hack.foodit.domain.member.Member;
-import hack.foodit.repository.MemberRepository;
+import hack.foodit.domain.member.entity.Member;
+import hack.foodit.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

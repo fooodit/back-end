@@ -1,4 +1,4 @@
-package hack.foodit.domain.member;
+package hack.foodit.domain.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

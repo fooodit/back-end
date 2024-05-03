@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class toggleRequestDto {
+public class ToggleRequestDto {
 
   private Long userId;
 

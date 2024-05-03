@@ -1,5 +1,6 @@
 package hack.foodit.domain.post.entity;
 
+import hack.foodit.domain.member.entity.Member;
 import hack.foodit.global.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,14 +25,13 @@ public class PostStatus extends BaseEntity {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  // TODO : User 테이블 연관관계 매핑
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "")
-//  private
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "post_id")
   private Post post;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private Member member;
 
   /**
    * True: like
