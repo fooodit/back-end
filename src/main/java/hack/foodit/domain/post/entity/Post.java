@@ -10,9 +10,11 @@ import jakarta.persistence.Id;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
@@ -32,4 +34,20 @@ public class Post extends BaseEntity {
 
   @ElementCollection
   private List<Integer> categoryList;
+
+  public void incrementLikeCount() {
+    this.likeCount += 1;
+  }
+
+  public void decrementLikeCount() {
+    this.likeCount -= 1;
+  }
+
+  public void incrementUnlikeCount() {
+    this.likeCount += 1;
+  }
+
+  public void decrementUnlikeCount() {
+    this.unlikeCount -= 1;
+  }
 }
