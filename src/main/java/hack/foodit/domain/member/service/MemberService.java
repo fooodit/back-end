@@ -1,25 +1,41 @@
 package hack.foodit.domain.member.service;
 
 import hack.foodit.domain.member.entity.Member;
+import hack.foodit.domain.member.entity.dto.LoginDto;
+import hack.foodit.domain.member.entity.dto.SignUpDto;
 import hack.foodit.domain.member.repository.MemberRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 @Service
+@Slf4j
 public class MemberService {
 
+    private final MemberRepository memberRepository;
+
     @Autowired
-    private MemberRepository memberRepository;
-
-    public Member registerMember(Member member) {
-        return memberRepository.save(member);
+    public MemberService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
     }
 
-    public Member getMemberById(Long id) {
-        return memberRepository.findById(id).orElse(null);
+    public Member registerMember(SignUpDto signUpDto) {
+        return memberRepository.save(signUpDto.toEntity());
     }
 
-    public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email);
+    public Optional<Member> getMemberById(Long id) {
+        return memberRepository.findById(id);
+    }
+
+    public Long login(LoginDto loginDto) {
+        Optional<Member> member = Optional.ofNullable(memberRepository.findByEmail(
+            loginDto.getEmail()));
+        if (member.isPresent() && member.get().getPassword().equals(loginDto.getPassword())) {
+
+            return member.get().getId();
+        } else {
+            return null;
+        }
     }
 }

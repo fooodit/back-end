@@ -101,13 +101,13 @@ public class PostService {
 
   @Transactional
   public PostResponseDTO likeToggle(ToggleRequestDto requestDto) {
-    Long userId = requestDto.getUserId();
+    Long memberId = requestDto.getMemberId();
     Long postId = requestDto.getPostId();
 
     Post post = postRepository.findById(postId)
         .orElseThrow(NotFoundException::new);
 
-    Member member = memberRepository.findById(userId)
+    Member member = memberRepository.findById(memberId)
         .orElseThrow(NotFoundException::new);
 
     PostStatus postStatus = postStatusRepository.findByMemberAndPost(member, post);
@@ -145,7 +145,7 @@ public class PostService {
 
   @Transactional
   public PostResponseDTO unlikeToggle(ToggleRequestDto requestDto) {
-    Long userId = requestDto.getUserId();
+    Long userId = requestDto.getMemberId();
     Long postId = requestDto.getPostId();
 
     Post post = postRepository.findById(postId)

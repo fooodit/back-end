@@ -3,28 +3,31 @@ package hack.foodit.domain.member.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor()
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member {
 
-    @Id @GeneratedValue
-    @Column(name = "user_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    @NonNull
-    private String name;
-
-
+    @Column(unique = true)
     private String email;
 
-    public Member(String name) {
+    private String name;
+    private String password;  // 비밀번호 필드 추가
+
+    public Member(String name, String email, String password) {
         this.name = name;
-
+        this.email = email;
+        this.password = password;
     }
-
 }

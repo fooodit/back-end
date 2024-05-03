@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ToggleRequestDto {
 
-  private Long userId;
+  private Long memberId;
 
   private Long postId;
 }

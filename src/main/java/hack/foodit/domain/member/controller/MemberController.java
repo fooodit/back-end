@@ -1,7 +1,9 @@
 package hack.foodit.domain.member.controller;
 
 import hack.foodit.domain.member.entity.Member;
-import hack.foodit.domain.member.repository.MemberRepository;
+import hack.foodit.domain.member.entity.dto.LoginDto;
+import hack.foodit.domain.member.entity.dto.SignUpDto;
+import hack.foodit.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,32 +13,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/members")
 public class MemberController {
 
+    private final MemberService memberService;
+
     @Autowired
-    private MemberRepository memberRepository;
+    public MemberController(MemberService memberService) {
+        this.memberService = memberService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<Member> registerMember(@RequestBody Member member) {
-        Member registeredMember = memberRepository.save(member);
+    public ResponseEntity<Member> registerMember(@RequestBody SignUpDto signUpDto) {
+        Member registeredMember = memberService.registerMember(signUpDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredMember);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Member> getMemberById(@PathVariable Long id) {
-        Member member = memberRepository.findById(id).orElse(null);
-        if (member != null) {
-            return ResponseEntity.ok(member);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return memberService.getMemberById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Member> getMemberByEmail(@RequestParam String email) {
-        Member member = memberRepository.findByEmail(email);
-        if (member != null) {
-            return ResponseEntity.ok(member);
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+        Long memberId = memberService.login(loginDto);
+        if (memberId != null) {
+            return ResponseEntity.ok(memberId);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("login fail");
         }
     }
 }
