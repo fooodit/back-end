@@ -99,6 +99,12 @@ public class PostService {
         .collect(Collectors.toList());
   }
 
+  public List<PostResponseDTO> findTrending(){
+    List<Post> posts = postRepository.findTop5ByOrderByLikeCountDesc();
+    return posts.stream()
+            .map(PostResponseDTO::from)
+            .collect(Collectors.toList());
+  }
   @Transactional
   public PostResponseDTO likeToggle(ToggleRequestDto requestDto) {
     Long memberId = requestDto.getMemberId();

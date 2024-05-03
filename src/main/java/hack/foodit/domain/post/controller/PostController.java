@@ -54,28 +54,6 @@ public class PostController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/popularity")
-    public ResponseEntity<?> getPostSortByPopularity(@RequestParam(required=false, defaultValue = "0")int page){
-        PageRequest pageable = PageRequest.of(page, 10, Sort.by("likeCount").descending());
-        try{
-            List<PostResponseDTO> res = postService.findAll(pageable);
-            return ResponseEntity.ok(res);
-        }catch(Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-    @GetMapping("/new")
-    public ResponseEntity<?> getPostSortByNew(
-        @RequestParam(required=false, defaultValue = "0")int page){
-
-        PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-        try{
-            List<PostResponseDTO> res = postService.findAll(pageable);
-            return ResponseEntity.ok(res);
-        }catch(Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
     @PutMapping("/{postId}")
     public ResponseEntity<?> updatePost(@PathVariable("postId") Long id, @RequestBody PostRequestDTO req){
         try{
@@ -95,11 +73,30 @@ public class PostController {
         }
     }
 
-    @GetMapping("/byCategory")
-    public ResponseEntity<?> getBusinessByCategory(@RequestParam("category") List<Integer> categoryList, @RequestParam(required=false, defaultValue = "0")int page){
-        PageRequest pageable = PageRequest.of(page, 10);
+    @GetMapping("/byCategory/sortedHot")
+    public ResponseEntity<?> getPostByCategoryHot(@RequestParam("category") List<Integer> categoryList, @RequestParam(required=false, defaultValue = "0")int page){
+        PageRequest pageable = PageRequest.of(page, 10, Sort.by("likeCount").descending());
         try{
             List<PostResponseDTO> res = postService.findPostByCategory(categoryList, pageable);
+            return ResponseEntity.ok(res);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/byCategory/sortedNew")
+    public ResponseEntity<?> getPostByCategoryNew(@RequestParam("category") List<Integer> categoryList, @RequestParam(required=false, defaultValue = "0")int page){
+        PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        try{
+            List<PostResponseDTO> res = postService.findPostByCategory(categoryList, pageable);
+            return ResponseEntity.ok(res);
+        }catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/trending")
+    public ResponseEntity<?> getPostTrending(){
+        try{
+            List<PostResponseDTO> res = postService.findTrending();
             return ResponseEntity.ok(res);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
