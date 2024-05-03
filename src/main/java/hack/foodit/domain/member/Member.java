@@ -9,22 +9,27 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor()
+@NoArgsConstructor
 public class Member {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "user_id")
     private Long id;
 
-    //    @NonNull
-    private String name;
-
-
+    @Column(unique = true)
     private String email;
 
-    public Member(String name) {
-        this.name = name;
+    private String name;
+    private String password;  // 비밀번호 필드 추가
 
+    public Member(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
     }
 
+    public Object getPassword() {
+        return null;
+    }
 }
