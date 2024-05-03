@@ -1,4 +1,4 @@
-package hack.foodit.domain.post.data.request;
+package hack.foodit.domain.post.entity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
