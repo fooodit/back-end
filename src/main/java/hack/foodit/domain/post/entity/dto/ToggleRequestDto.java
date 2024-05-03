@@ -12,6 +12,4 @@ public class ToggleRequestDto {
   private Long userId;
 
   private Long postId;
-
-  private Integer category;
 }
