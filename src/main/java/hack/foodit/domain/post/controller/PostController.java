@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,9 +33,12 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody PostRequestDTO req){
+    public ResponseEntity<?> createPost(
+        @RequestPart PostRequestDTO reqDto,
+        @RequestPart("files") List<MultipartFile> multipartFileList){
+
         try{
-            postService.createPost(req);
+            postService.createPost(reqDto, multipartFileList);
             return new ResponseEntity<>("게시물이 정상적으로 작성되었습니다.", HttpStatus.CREATED);
         }catch(Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -61,7 +65,9 @@ public class PostController {
         }
     }
     @GetMapping("/new")
-    public ResponseEntity<?> getPostSortByNew(@RequestParam(required=false, defaultValue = "0")int page){
+    public ResponseEntity<?> getPostSortByNew(
+        @RequestParam(required=false, defaultValue = "0")int page){
+
         PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
         try{
             List<PostResponseDTO> res = postService.findAll(pageable);
