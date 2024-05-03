@@ -2,6 +2,7 @@ package hack.foodit.domain.member.controller;
 
 import hack.foodit.domain.member.entity.Member;
 import hack.foodit.domain.member.entity.dto.LoginDto;
+import hack.foodit.domain.member.entity.dto.LoginResponse;
 import hack.foodit.domain.member.entity.dto.SignUpDto;
 import hack.foodit.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,9 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-        Long memberId = memberService.login(loginDto);
-        if (memberId != null) {
-            return ResponseEntity.ok(memberId);
+        LoginResponse loginResponse = memberService.login(loginDto);
+        if (loginResponse != null) {
+            return new ResponseEntity<>(loginResponse, HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("login fail");
         }

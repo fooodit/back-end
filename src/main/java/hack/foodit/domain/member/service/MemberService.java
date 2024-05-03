@@ -2,6 +2,7 @@ package hack.foodit.domain.member.service;
 
 import hack.foodit.domain.member.entity.Member;
 import hack.foodit.domain.member.entity.dto.LoginDto;
+import hack.foodit.domain.member.entity.dto.LoginResponse;
 import hack.foodit.domain.member.entity.dto.SignUpDto;
 import hack.foodit.domain.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +29,14 @@ public class MemberService {
         return memberRepository.findById(id);
     }
 
-    public Long login(LoginDto loginDto) {
+    public LoginResponse login(LoginDto loginDto) {
         Optional<Member> member = Optional.ofNullable(memberRepository.findByEmail(
             loginDto.getEmail()));
         if (member.isPresent() && member.get().getPassword().equals(loginDto.getPassword())) {
 
-            return member.get().getId();
+            return LoginResponse.builder()
+                .memberId(member.get().getId())
+                .build();
         } else {
             return null;
         }
